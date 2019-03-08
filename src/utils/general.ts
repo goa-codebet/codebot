@@ -14,3 +14,11 @@ export const shuffleArray = (array: any[]) => {
   }
   return array
 }
+
+export const chunkArray = (arr: any[]) => [
+  arr.slice(0, arr.length / 2),
+  arr.slice(arr.length / 2, arr.length),
+]
+
+export const splitString = (seperator: string) => (string: string) =>
+  string.split(seperator)

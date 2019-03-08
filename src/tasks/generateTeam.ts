@@ -1,5 +1,10 @@
-import { arrayToSpeakFriendlyString, shuffleArray } from '../utils/general'
-import { getErrorText } from '../utils/tasks'
+import {
+  arrayToSpeakFriendlyString,
+  shuffleArray,
+  splitString,
+  chunkArray,
+} from '../utils/general'
+import { createGetErrorText } from '../utils/tasks'
 import { pipe, map } from 'ramda'
 
 const task = {
@@ -7,19 +12,13 @@ const task = {
 }
 
 const validate = (instructions: string) => {
+  const getErrorText = createGetErrorText(task.name)
+
   if (instructions.split(' ').length % 2 !== 0)
-    return getErrorText('You must enter an even amount of players', task.name)
+    return getErrorText('You must enter an even amount of players')
 
   return true
 }
-
-const chunkArray = (arr: any[]) => [
-  arr.slice(0, arr.length / 2),
-  arr.slice(arr.length / 2, arr.length),
-]
-
-const splitString = (seperator: string) => (string: string) =>
-  string.split(seperator)
 
 export default (instructions: string) => {
   if (typeof validate(instructions) === 'string') return validate(instructions)

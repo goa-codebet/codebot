@@ -1,29 +1,25 @@
 import { ISlashRequestBody } from '../types'
 import { arrayToSpeakFriendlyString } from '../utils/general'
-import generateTeam from '../tasks/generateTeam'
+import { pipe } from 'ramda'
+import { taskNameToFunction } from './taskNameToFunctionMap'
 
-export const taskNameToFunction: { [key: string]: Function } = {
-  'generate-team': generateTeam,
-}
-export const getTaskName = (text: string) =>
+const getTaskName = (text: string) =>
   text.indexOf(' ') > -1 ? text.substring(0, text.indexOf(' ')) : text
-export const getTaskInstructions = (text: string) =>
-  text.substring(text.indexOf(' ') + 1, text.length)
-export const getTaskFunction = (text: string) => {
-  const taskName = getTaskName(text)
-  return taskNameToFunction[taskName]
-}
-const getHelpText = () => {
-  const availableCommands = Object.keys(taskNameToFunction)
-  const availableCommandsText = arrayToSpeakFriendlyString(availableCommands)
 
-  return `Available commands are: \`${availableCommandsText}\``
-}
+const getTaskInstructions = (text: string) =>
+  text.substring(text.indexOf(' ') + 1, text.length)
+
+const getHelpText = (taskNameToFunction: { [key: string]: Function }) =>
+  pipe(
+    Object.keys,
+    arrayToSpeakFriendlyString,
+    avilableCommands => `Available commands are: \`${avilableCommands}\``,
+  )(taskNameToFunction)
 
 export const getResponseText = (slashRequestBody: ISlashRequestBody) => {
-  const taskFunction = getTaskFunction(slashRequestBody.text)
-  if (!taskFunction) return getHelpText()
+  const taskFunction = taskNameToFunction[getTaskName(slashRequestBody.text)]
+  if (!taskFunction) return getHelpText(taskNameToFunction)
   const taskResponse = taskFunction(getTaskInstructions(slashRequestBody.text))
-  if (!taskResponse) return getHelpText()
+  if (!taskResponse) return getHelpText(taskNameToFunction)
   return taskResponse
 }
