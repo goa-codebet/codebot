@@ -8,7 +8,10 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.post('/', (req, res) => {
   const body = req.body as ISlashRequestBody
-  res.send(getResponseText(body))
+  res.send({
+    response_type: 'in_channel',
+    text: getResponseText(body),
+  })
 })
 
 app.listen(3030, () => console.log('Server is runninng'))
