@@ -20,7 +20,9 @@ const getHelpText = (taskNameToTask: { [key: string]: ITask }) =>
     avilableCommands => `Available commands are: \`${avilableCommands}\``,
   )(taskNameToTask)
 
-export const getResponseText = (slashRequestBody: ISlashRequestBody) => {
+export const getResponseText = (
+  slashRequestBody: ISlashRequestBody,
+): [string, boolean] => {
   const task = taskNameToTask[getTaskName(slashRequestBody.text)]
   if (!task) return [getHelpText(taskNameToTask), true]
 

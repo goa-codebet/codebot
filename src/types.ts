@@ -12,6 +12,12 @@ export interface ISlashRequestBody {
   trigger_id: string
 }
 
+export interface ISlashResponseBody {
+  text: string
+  response_type: 'in_channel' | 'ephemeral'
+  attachments?: { text: string }[]
+}
+
 export interface ITask {
   name: string
   function: (instructions: string) => [string, boolean]
