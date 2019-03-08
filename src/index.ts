@@ -8,9 +8,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.post('/', (req, res) => {
   const body = req.body as ISlashRequestBody
+  const [text, error] = getResponseText(body)
+
+  if (error) return res.send(text)
+
   res.send({
     response_type: 'in_channel',
-    text: getResponseText(body),
+    text,
   })
 })
 

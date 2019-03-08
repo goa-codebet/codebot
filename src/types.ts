@@ -11,3 +11,9 @@ export interface ISlashRequestBody {
   response_url: string
   trigger_id: string
 }
+
+export interface ITask {
+  name: string
+  function: (instructions: string) => [string, boolean]
+  guide: string
+}
