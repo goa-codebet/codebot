@@ -1,11 +1,7 @@
 import { ISlashRequestBody, ITask } from '../types'
 import { arrayToSpeakFriendlyString } from '../utils/general'
 import { pipe } from 'ramda'
-import generateTeam from './generateTeam'
-
-const taskNameToTask: { [key: string]: ITask } = {
-  'generate-team': generateTeam,
-}
+import taskNameToTask from './taskNameToTaskMap'
 
 const getTaskName = (text: string) =>
   text.indexOf(' ') > -1 ? text.substring(0, text.indexOf(' ')) : text
