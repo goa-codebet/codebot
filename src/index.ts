@@ -1,21 +1,18 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import { ISlashRequestBody, ISlashResponseBody } from './types'
-import { getResponseText } from './tasks'
+import morgan from 'morgan'
+import slashController from './controllers/slash'
+import interactiveController from './controllers/interactive'
 
 const app = express()
+const PORT = process.env.PORT || 3030
+
 app.use(bodyParser.urlencoded({ extended: false }))
+app.use(morgan('tiny'))
 
-app.post('/', (req, res) => {
-  const body = req.body as ISlashRequestBody
-  const [text, error] = getResponseText(body)
+app.post('/slash', slashController)
+app.post('/interactive', interactiveController)
 
-  const responseBody: ISlashResponseBody = {
-    response_type: error ? 'ephemeral' : 'in_channel',
-    text,
-  }
-
-  res.send(responseBody)
-})
-
-app.listen(3030, () => console.log('Server is runninng'))
+const onServerStartListen = () =>
+  console.log(`Server is running on port: ${PORT}`)
+app.listen(PORT, onServerStartListen)

@@ -1,29 +1,26 @@
-import { ISlashRequestBody, ITask } from '../types'
-import { arrayToSpeakFriendlyString } from '../utils/general'
-import { pipe } from 'ramda'
+import { ISlashRequest, ISlashResponse } from '../types'
 import taskNameToTask from './taskNameToTaskMap'
+import { getTaskName, getTaskInstructions, getHelpText } from '../utils/tasks'
 
-const getTaskName = (text: string) =>
-  text.indexOf(' ') > -1 ? text.substring(0, text.indexOf(' ')) : text
-
-const getTaskInstructions = (text: string) =>
-  text.substring(text.indexOf(' ') + 1, text.length)
-
-const getHelpText = (taskNameToTask: { [key: string]: ITask }) =>
-  pipe(
-    Object.keys,
-    arrayToSpeakFriendlyString,
-    avilableCommands => `Available commands are: \`${avilableCommands}\``,
-  )(taskNameToTask)
-
-export const getResponseText = (
-  slashRequestBody: ISlashRequestBody,
-): [string, boolean] => {
+export const getResponseBody = (
+  slashRequestBody: ISlashRequest,
+): ISlashResponse => {
   const task = taskNameToTask[getTaskName(slashRequestBody.text)]
-  if (!task) return [getHelpText(taskNameToTask), true]
-
   const instructions = getTaskInstructions(slashRequestBody.text)
-  if (instructions === 'help') return [task.guide, true]
 
-  return task.function(getTaskInstructions(slashRequestBody.text))
+  if (
+    !task ||
+    instructions === 'help' ||
+    (task.validate && task.validate(instructions))
+  )
+    return {
+      text: !task
+        ? getHelpText(taskNameToTask)
+        : instructions === 'help'
+        ? task.guide
+        : (task.validate(instructions) as string),
+      response_type: 'ephemeral',
+    }
+
+  return task.function({ instructions }, slashRequestBody)
 }
