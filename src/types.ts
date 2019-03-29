@@ -13,7 +13,7 @@ export interface ISlashRequest {
 }
 
 export interface ISlashResponse {
-  text: string
+  text?: string
   response_type?: 'in_channel' | 'ephemeral'
   attachments?: { [key: string]: any }[]
 }
