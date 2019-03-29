@@ -1,6 +1,20 @@
 import { arrayToSpeakFriendlyString } from './general'
 import { ITask } from '../types'
-import { splitEvery, pipe, replace, split, reduce, tap, test } from 'ramda'
+import {
+  filter,
+  splitEvery,
+  pipe,
+  replace,
+  split,
+  reduce,
+  test,
+  clone,
+} from 'ramda'
+
+const removeTaskName = (text: string) =>
+  text.includes(' ') ? text.replace(/^.*? /g, '') : ''
+
+const filterOutFalsyValues: any = filter(i => Boolean(i))
 
 export const createGetErrorText = (taskName: string) => (reason: string) =>
   `\`[codebot/${taskName}]:\` ${reason}`
@@ -8,33 +22,56 @@ export const createGetErrorText = (taskName: string) => (reason: string) =>
 export const getTaskName = (text: string) =>
   text.indexOf(' ') > -1 ? text.substring(0, text.indexOf(' ')) : text
 
-const removeTaskName = replace(/^.*? /g, '')
+export const addValueToNonValueFlags = (arr: (string)[]) => {
+  const checkIsFlag = (item: string) => Boolean(item && item.includes('--'))
+
+  const clonedArr = clone(arr)
+
+  for (let i = 0; i < clonedArr.length; i += 2) {
+    const isLast = i === clonedArr.length - 1
+    const isFlag = checkIsFlag(clonedArr[i])
+    const nextItemIsFlag = checkIsFlag(clonedArr[i + 1])
+
+    if ((isLast && isFlag) || (isFlag && nextItemIsFlag)) {
+      clonedArr.splice(i + 1, 0, 'true')
+    }
+  }
+
+  return clonedArr
+}
+
+const getFlags = pipe(
+  removeTaskName,
+  replace(/.+?(?=--)/, ''),
+  split(' '),
+  addValueToNonValueFlags,
+  splitEvery(2),
+  reduce(
+    (acc, [key, value]) => ({
+      ...acc,
+      [(key as string).replace(/-/g, '')]: value,
+    }),
+    {},
+  ),
+)
+
+const getParameters: (text: string) => string[] = pipe(
+  removeTaskName,
+  replace(/-.*/g, ''),
+  split(' '),
+  filterOutFalsyValues,
+)
 
 export const getTaskInstructions = (text: string) => {
   const taskName = text.split(' ')[0]
-  const parameters = text.replace(/(^.*? | -.*)/g, '').split(' ')
+  const parameters = getParameters(text)
 
   const hasFlags = pipe(
     removeTaskName,
-    test(/-/),
+    test(/--/),
   )(text)
 
-  const flags = !hasFlags
-    ? {}
-    : pipe(
-        removeTaskName,
-        replace(/.+?(?=-)/, ''),
-        tap(console.log),
-        split(' '),
-        splitEvery(2),
-        reduce(
-          (acc, [key, value]) => ({
-            ...acc,
-            [(key as string).replace('-', '')]: value,
-          }),
-          {},
-        ),
-      )(text)
+  const flags: { [key: string]: string } = !hasFlags ? {} : getFlags(text)
 
   return {
     taskName,

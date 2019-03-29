@@ -13,12 +13,13 @@ export const getResponseBody = (
   if (
     !task ||
     parameters[0] === 'help' ||
+    flags.help ||
     (task.validate && task.validate({ parameters, flags }))
   )
     return {
       text: !task
         ? getHelpText(taskNameToTask)
-        : parameters[0] === 'help'
+        : parameters[0] === 'help' || flags.help
         ? task.guide
         : (task.validate({ parameters, flags }) as string),
       response_type: 'ephemeral',

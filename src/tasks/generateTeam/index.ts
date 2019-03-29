@@ -7,7 +7,7 @@ const task: ITask = {
   function: main,
   validate,
   guide:
-    'Usage: `/codebot generate-team [?team size] [names space seperated]`\nExample: `/codebot generate-team @x @y @z @t`',
+    'Usage: `/codebot generate-team [names space seperated] [--size] [--stealth]`\nExample: `/codebot generate-team @x @y @z @t`',
 }
 
 export default task
