@@ -14,7 +14,7 @@ const main = ({ instructions }: ITaskFunctionParams): ISlashResponse => {
   const teams = getTeams(shuffledPlayers, teamSize)
 
   return {
-    text: getTeamPresentationText(teams),
+    text: `Teams have been generated!\n${getTeamPresentationText(teams)}`,
     response_type: 'in_channel',
   }
 }
