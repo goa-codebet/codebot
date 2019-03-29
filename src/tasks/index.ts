@@ -1,26 +1,28 @@
 import { ISlashRequest, ISlashResponse } from '../types'
 import taskNameToTask from './taskNameToTaskMap'
-import { getTaskName, getTaskInstructions, getHelpText } from '../utils/tasks'
+import { getTaskInstructions, getHelpText } from '../utils/tasks'
 
 export const getResponseBody = (
   slashRequestBody: ISlashRequest,
 ): ISlashResponse => {
-  const task = taskNameToTask[getTaskName(slashRequestBody.text)]
-  const instructions = getTaskInstructions(slashRequestBody.text)
+  const { taskName, parameters, flags } = getTaskInstructions(
+    slashRequestBody.text,
+  )
+  const task = taskNameToTask[taskName]
 
   if (
     !task ||
-    instructions === 'help' ||
-    (task.validate && task.validate(instructions))
+    parameters[0] === 'help' ||
+    (task.validate && task.validate({ parameters, flags }))
   )
     return {
       text: !task
         ? getHelpText(taskNameToTask)
-        : instructions === 'help'
+        : parameters[0] === 'help'
         ? task.guide
-        : (task.validate(instructions) as string),
+        : (task.validate({ parameters, flags }) as string),
       response_type: 'ephemeral',
     }
 
-  return task.function({ instructions }, slashRequestBody)
+  return task.function({ parameters, flags }, slashRequestBody)
 }

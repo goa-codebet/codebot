@@ -19,7 +19,8 @@ export interface ISlashResponse {
 }
 
 export interface ITaskFunctionParams {
-  instructions: string
+  parameters: string[]
+  flags: { [key: string]: string }
 }
 
 export interface ITask {
@@ -28,7 +29,10 @@ export interface ITask {
     taskFunctionParams: ITaskFunctionParams,
     slashRequest: ISlashRequest,
   ) => ISlashResponse
-  validate: (instructions: string) => string | null
+  validate: (params: {
+    parameters: string[]
+    flags: { [key: string]: string }
+  }) => string | null
   guide: string
 }
 

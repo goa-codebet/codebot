@@ -1,17 +1,10 @@
 import { ISlashResponse, ITaskFunctionParams } from '../../types'
 import { shuffleArray } from '../../utils/general'
-import {
-  getTeamSize,
-  getPlayers,
-  getTeams,
-  getTeamPresentationText,
-} from './utils'
+import { getTeams, getTeamPresentationText } from './utils'
 
-const main = ({ instructions }: ITaskFunctionParams): ISlashResponse => {
-  const teamSize = getTeamSize(instructions)
-  const players = getPlayers(instructions, Boolean(teamSize))
-  const shuffledPlayers = shuffleArray(players)
-  const teams = getTeams(shuffledPlayers, teamSize)
+const main = ({ parameters, flags }: ITaskFunctionParams): ISlashResponse => {
+  const teamSize = Number(flags.s || flags.size || parameters.length / 2)
+  const teams = getTeams(shuffleArray(parameters), teamSize)
 
   return {
     text: `Teams have been generated!\n${getTeamPresentationText(teams)}`,

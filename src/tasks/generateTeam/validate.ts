@@ -1,9 +1,10 @@
 import { createGetErrorText } from '../../utils/tasks'
 import task from '.'
+import { ITask } from '../../types'
 
-const validate = (instructions: string): null | string => {
+const validate: ITask['validate'] = ({ parameters }) => {
   const getErrorText = createGetErrorText(task.name)
-  if (!instructions.length) return getErrorText('You must enter instructions')
+  if (!parameters.length) return getErrorText('You must enter parameters')
   return null
 }
 
