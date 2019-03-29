@@ -1,22 +1,22 @@
 import { ISlashResponse, ITaskFunctionParams } from '../../types'
-import { pipe, map } from 'ramda'
+import { shuffleArray } from '../../utils/general'
 import {
-  splitString,
-  shuffleArray,
-  chunkArray,
-  arrayToSpeakFriendlyString,
-} from '../../utils/general'
+  getTeamSize,
+  getPlayers,
+  getTeams,
+  getTeamPresentationText,
+} from './utils'
 
-const main = ({ instructions }: ITaskFunctionParams): ISlashResponse =>
-  pipe(
-    splitString(' '),
-    shuffleArray,
-    chunkArray,
-    map(arrayToSpeakFriendlyString),
-    ([teamOne, teamTwo]): ISlashResponse => ({
-      text: `Teams have been generated!\nTeam A: ${teamOne}\nTeam B: ${teamTwo}`,
-      response_type: 'in_channel',
-    }),
-  )(instructions)
+const main = ({ instructions }: ITaskFunctionParams): ISlashResponse => {
+  const teamSize = getTeamSize(instructions)
+  const players = getPlayers(instructions, Boolean(teamSize))
+  const shuffledPlayers = shuffleArray(players)
+  const teams = getTeams(shuffledPlayers, teamSize)
+
+  return {
+    text: getTeamPresentationText(teams),
+    response_type: 'in_channel',
+  }
+}
 
 export default main
