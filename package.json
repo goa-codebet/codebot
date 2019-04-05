@@ -20,6 +20,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@slack/web-api": "^5.0.0",
     "@types/ramda": "^0.25.51",
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
