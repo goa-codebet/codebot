@@ -22,3 +22,6 @@ export const chunkArray = (arr: any[]) => [
 
 export const splitString = (seperator: string) => (string: string) =>
   string.split(seperator)
+
+export const getUserIdFromUserInputReference = (rawUserId: string) =>
+  rawUserId.replace(/(<|@|\|.*)/g, '')

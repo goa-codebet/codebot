@@ -1,4 +1,7 @@
-import { arrayToSpeakFriendlyString } from './general'
+import {
+  arrayToSpeakFriendlyString,
+  getUserIdFromUserInputReference,
+} from './general'
 import { ITask } from '../types'
 import {
   filter,
@@ -9,7 +12,10 @@ import {
   reduce,
   test,
   clone,
+  forEach,
+  map,
 } from 'ramda'
+import sendMessageToUser from './web/sendMessageToUser'
 
 const removeTaskName = (text: string) =>
   text.includes(' ') ? text.replace(/^.*? /g, '') : ''
@@ -86,3 +92,23 @@ export const getHelpText = (taskNameToTask: { [key: string]: ITask }) =>
     arrayToSpeakFriendlyString,
     avilableCommands => `Available commands are: \`${avilableCommands}\``,
   )(taskNameToTask)
+
+const createMessageForUser = (team: string[]) => (user: string) => ({
+  user,
+  message: `Here is your team: ${arrayToSpeakFriendlyString(team)}`,
+})
+
+const createAllMessages = (team: string[]) =>
+  map(
+    pipe(
+      getUserIdFromUserInputReference,
+      createMessageForUser(team),
+    ),
+  )(team)
+
+export const sendTeamToAllPlayers = forEach(
+  pipe(
+    createAllMessages,
+    forEach(sendMessageToUser),
+  ),
+)
