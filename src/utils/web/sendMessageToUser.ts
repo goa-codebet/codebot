@@ -11,5 +11,6 @@ const sendMessageToUser = ({ message, user }: ISendMessageToUserParams) =>
     .then(({ channel: { id } }: any) =>
       webClient.chat.postMessage({ channel: id, text: message }),
     )
+    .catch(() => {}) // simply ignore error if the user wasn't found
 
 export default sendMessageToUser
