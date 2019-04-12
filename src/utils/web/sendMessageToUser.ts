@@ -8,12 +8,9 @@ interface ISendMessageToUserParams {
 const sendMessageToUser = ({ message, user }: ISendMessageToUserParams) =>
   webClient.im
     .open({ user })
-    .then(({ channel: { id } }: any) => {
-      console.log({ channelId: id })
-      webClient.chat
-        .postMessage({ channel: id, text: message })
-        .then(console.log)
-    })
+    .then(({ channel: { id } }: any) =>
+      webClient.chat.postMessage({ channel: id, text: message }),
+    )
     .catch(() => {}) // simply ignore error if the user wasn't found
 
 export default sendMessageToUser
